@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Reservas — Hotel Booking Prediction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #11151C;
+    --panel:     #1A1F29;
+    --panel-2:   #20262F;
+    --line:      #2B323D;
+    --text:      #E7EAEE;
+    --text-dim:  #8C96A3;
+    --amber:     #E8A33D;
+    --amber-dim: #6B5328;
+    --green:     #3FBF8F;
+    --green-dim: #1B3F33;
+    --red:       #E1556B;
+    --red-dim:   #3F1F28;
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Space Grotesk', sans-serif;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--sans);
+    min-height:100vh; padding:28px 20px 60px;
+  }
+  .wrap{max-width:1180px; margin:0 auto;}
+
+  /* ── Header tipo letrero de tablero de llegadas ─────────────────── */
+  header{
+    display:flex; align-items:baseline; justify-content:space-between;
+    flex-wrap:wrap; gap:10px; margin-bottom:28px;
+    border-bottom:1px solid var(--line); padding-bottom:18px;
+  }
+  .brand{display:flex; align-items:baseline; gap:12px;}
+  .brand .mark{
+    font-family:var(--mono); color:var(--amber); font-size:13px;
+    letter-spacing:.18em; border:1px solid var(--amber-dim);
+    padding:3px 8px; border-radius:3px; text-transform:uppercase;
+  }
+  h1{font-family:var(--display); font-size:22px; font-weight:600; letter-spacing:-.01em;}
+  .sub{font-family:var(--mono); font-size:12px; color:var(--text-dim); letter-spacing:.02em;}
+  #status-dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--text-dim); margin-right:6px; transition:background .3s;}
+  #status-dot.ok{background:var(--green); box-shadow:0 0 8px var(--green);}
+  #status-dot.bad{background:var(--red); box-shadow:0 0 8px var(--red);}
+
+  /* ── Layout principal ───────────────────────────────────────────── */
+  .grid{display:grid; grid-template-columns: 1.35fr 1fr; gap:22px;}
+  @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:22px 24px;
+  }
+  .panel h2{
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--text-dim); margin-bottom:18px; display:flex; align-items:center; gap:8px;
+  }
+  .panel h2 .n{color:var(--amber);}
+
+  /* ── Formulario ──────────────────────────────────────────────────── */
+  fieldset{border:none; margin-bottom:20px;}
+  legend{
+    font-family:var(--mono); font-size:11px; color:var(--amber);
+    letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px;
+    padding-bottom:6px; border-bottom:1px solid var(--amber-dim); width:100%;
+  }
+  .row{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:12px 14px;}
+  label{display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:5px; font-weight:500;}
+  input, select{
+    width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:9px 10px; border-radius:6px; font-family:var(--sans); font-size:13.5px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus{
+    outline:none; border-color:var(--amber); box-shadow:0 0 0 3px rgba(232,163,61,.15);
+  }
+  select{
+    appearance:none; cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238C96A3'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 12px center; padding-right:30px;
+  }
+
+  .submit-row{display:flex; align-items:center; gap:14px; margin-top:6px;}
+  button{
+    background:var(--amber); color:#1A1206; border:none; font-family:var(--display);
+    font-weight:600; font-size:14.5px; padding:12px 26px; border-radius:7px;
+    cursor:pointer; letter-spacing:.01em; transition:transform .1s, box-shadow .15s;
+  }
+  button:hover{box-shadow:0 4px 18px rgba(232,163,61,.35); transform:translateY(-1px);}
+  button:active{transform:translateY(0);}
+  button:disabled{opacity:.55; cursor:not-allowed; transform:none; box-shadow:none;}
+  .hint{font-family:var(--mono); font-size:11px; color:var(--text-dim);}
+  .err{color:var(--red); font-family:var(--mono); font-size:12px; margin-top:10px; display:none;}
+
+  /* ── Panel de resultados — la tarjeta de check-in ───────────────── */
+  .result-empty{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    height:100%; min-height:560px; text-align:center; color:var(--text-dim); gap:18px;
+  }
+  .ticket-ghost{
+    width:180px; border:1.5px dashed var(--line); border-radius:10px; padding:18px 14px;
+    display:flex; flex-direction:column; gap:10px; opacity:.55;
+  }
+  .ticket-ghost .tg-row{height:7px; background:var(--panel-2); border-radius:3px;}
+  .ticket-ghost .tg-row.w60{width:60%;}
+  .ticket-ghost .tg-row.w40{width:40%;}
+  .ticket-ghost .tg-big{height:26px; background:var(--panel-2); border-radius:5px; margin-top:4px;}
+  .ticket-ghost .tg-perf{
+    border-top:1.5px dashed var(--line); margin:4px -14px 0; position:relative;
+  }
+  .specs{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; margin-top:6px;
+  }
+  .spec{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:7px;
+    padding:10px 12px; text-align:left;
+  }
+  .spec .k{font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim);}
+  .spec .v{font-family:var(--display); font-size:16px; font-weight:600; margin-top:2px;}
+
+  .card{display:none;}
+  .card.show{display:block; animation:rise .35s ease;}
+  @keyframes rise{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .metric{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
+    padding:16px 16px 14px; margin-bottom:14px;
+  }
+  .metric .lbl{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim);}
+  .metric .val{
+    font-family:var(--display); font-size:34px; font-weight:700; margin-top:4px;
+    display:flex; align-items:baseline; gap:6px;
+  }
+  .metric .val small{font-family:var(--mono); font-size:14px; font-weight:500; color:var(--text-dim);}
+  .metric .foot{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); margin-top:8px;}
+
+  .risk{
+    display:flex; align-items:center; gap:10px; padding:14px 16px; border-radius:8px;
+    border:1px solid var(--line); margin-top:2px;
+  }
+  .risk.low{background:var(--green-dim); border-color:#2B5C4A;}
+  .risk.high{background:var(--red-dim); border-color:#6B2F3D;}
+  .risk .dot{width:10px; height:10px; border-radius:50%; flex-shrink:0;}
+  .risk.low .dot{background:var(--green); box-shadow:0 0 10px var(--green);}
+  .risk.high .dot{background:var(--red); box-shadow:0 0 10px var(--red);}
+  .risk .txt{font-family:var(--display); font-weight:600; font-size:14.5px;}
+  .risk .txt small{display:block; font-family:var(--mono); font-weight:400; font-size:11px; color:var(--text-dim); margin-top:2px;}
+
+  .bar-track{height:6px; background:var(--panel); border-radius:4px; overflow:hidden; margin-top:10px;}
+  .bar-fill{height:100%; border-radius:4px; transition:width .5s ease;}
+
+  .meta-row{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10.5px; color:var(--text-dim); margin-top:16px; padding-top:14px; border-top:1px dashed var(--line);}
+
+  footer{margin-top:30px; text-align:center; font-family:var(--mono); font-size:11px; color:var(--text-dim);}
+  footer a{color:var(--amber); text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="mark">HBP-01</span>
+      <div>
+        <h1>Panel de evaluación de reservas</h1>
+        <div class="sub">tarifa estimada · riesgo de cancelación</div>
+      </div>
+    </div>
+    <div class="sub"><span id="status-dot"></span><span id="status-text">verificando servicio…</span></div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ── Formulario ────────────────────────────────────────────── -->
+    <div class="panel">
+      <h2><span class="n">01</span> Datos de la reserva</h2>
+      <form id="form-reserva">
+
+        <fieldset>
+          <legend>Estancia</legend>
+          <div class="row">
+            <div><label>Tipo de hotel</label>
+              <select id="tipo_hotel">
+                <option>Resort Hotel</option><option>City Hotel</option>
+              </select></div>
+            <div><label>Mes de llegada</label>
+              <select id="mes_llegada">
+                <option>January</option><option>February</option><option>March</option>
+                <option>April</option><option>May</option><option>June</option>
+                <option>July</option><option>August</option><option selected>September</option>
+                <option>October</option><option>November</option><option>December</option>
+              </select></div>
+            <div><label>Semana del año</label><input type="number" id="semana_llegada" value="39" min="1" max="53"></div>
+            <div><label>Día de llegada</label><input type="number" id="dia_llegada" value="19" min="1" max="31"></div>
+            <div><label>Noches de semana</label><input type="number" id="noches_semana" value="10" min="0" max="50"></div>
+            <div><label>Noches de fin de semana</label><input type="number" id="noches_fin_semana" value="4" min="0" max="19"></div>
+            <div><label>Días de anticipación</label><input type="number" id="dias_anticipacion" value="192" min="0" max="737"></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Huéspedes</legend>
+          <div class="row">
+            <div><label>Adultos</label><input type="number" id="adultos" value="2" min="0" max="55"></div>
+            <div><label>Niños</label><input type="number" id="ninos" value="0" min="0" max="10"></div>
+            <div><label>Solicitudes especiales</label><input type="number" id="solicitudes_especiales" value="2" min="0" max="5"></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Habitación &amp; comercial</legend>
+          <div class="row">
+            <div><label>Habitación reservada</label>
+              <select id="tipo_hab_reservada">
+                <option>A</option><option>B</option><option>C</option>
+                <option selected>D</option><option>E</option><option>F</option>
+                <option>G</option><option>H</option><option>L</option><option>P</option>
+              </select></div>
+            <div><label>Habitación asignada</label>
+              <select id="tipo_hab_asignada">
+                <option>A</option><option>B</option><option>C</option>
+                <option selected>D</option><option>E</option><option>F</option>
+                <option>G</option><option>H</option><option>I</option><option>K</option><option>L</option><option>P</option>
+              </select></div>
+            <div><label>Régimen alimenticio</label>
+              <select id="regimen_alimenticio">
+                <option selected>BB</option><option>HB</option><option>FB</option><option>SC</option><option>Undefined</option>
+              </select></div>
+            <div><label>Tipo de depósito</label>
+              <select id="tipo_deposito">
+                <option selected>No Deposit</option><option>Non Refund</option><option>Refundable</option>
+              </select></div>
+            <div><label>Tipo de cliente</label>
+              <select id="tipo_cliente">
+                <option selected>Contract</option><option>Transient</option><option>Transient-Party</option><option>Group</option>
+              </select></div>
+            <div><label>Segmento de mercado</label>
+              <select id="segmento_mercado">
+                <option>Direct</option><option>Corporate</option>
+                <option selected>Offline TA/TO</option><option>Online TA</option>
+                <option>Groups</option><option>Aviation</option><option>Complementary</option><option>Undefined</option>
+              </select></div>
+            <div><label>Canal de distribución</label>
+              <select id="canal_distribucion">
+                <option>Direct</option><option>Corporate</option><option selected>TA/TO</option><option>GDS</option><option>Undefined</option>
+              </select></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Historial del cliente</legend>
+          <div class="row">
+            <div><label>Cancelaciones previas</label><input type="number" id="cancelaciones_previas" value="0" min="0" max="26"></div>
+            <div><label>Cambios sobre la reserva</label><input type="number" id="cambios_reserva" value="0" min="0" max="21"></div>
+            <div><label>Días en lista de espera</label><input type="number" id="dias_lista_espera" value="0" min="0" max="391"></div>
+          </div>
+        </fieldset>
+
+        <div class="submit-row">
+          <button type="submit" id="btn-submit">Evaluar reserva</button>
+          <span class="hint">POST /predict/tarifa + /predict/cancelacion</span>
+        </div>
+        <div class="err" id="error-box"></div>
+      </form>
+    </div>
+
+    <!-- ── Resultados ────────────────────────────────────────────── -->
+    <div class="panel">
+      <h2><span class="n">02</span> Resultado de la evaluación</h2>
+
+      <div class="result-empty" id="empty-state">
+        <div class="ticket-ghost">
+          <div class="tg-row w40"></div>
+          <div class="tg-big"></div>
+          <div class="tg-perf"></div>
+          <div class="tg-row w60"></div>
+          <div class="tg-row"></div>
+          <div class="tg-row w40"></div>
+        </div>
+        <p>Completa los datos de la reserva y pulsa «Evaluar reserva» para ver la tarifa estimada y el riesgo de cancelación.</p>
+        <div class="specs">
+          <div class="spec"><div class="k">Modelo tarifa</div><div class="v">XGBoost · R² 0.745</div></div>
+          <div class="spec"><div class="k">Modelo cancelación</div><div class="v">XGBoost · F1 0.612</div></div>
+        </div>
+      </div>
+
+      <div class="card" id="result-card">
+        <div class="metric">
+          <div class="lbl">Tarifa diaria estimada</div>
+          <div class="val"><span id="val-tarifa">—</span><small>USD / noche</small></div>
+          <div class="foot" id="foot-tarifa"></div>
+        </div>
+
+        <div class="metric">
+          <div class="lbl">Probabilidad de cancelación</div>
+          <div class="bar-track"><div class="bar-fill" id="bar-proba"></div></div>
+          <div class="risk" id="risk-box">
+            <div class="dot"></div>
+            <div class="txt"><span id="risk-label">—</span><small id="risk-sub"></small></div>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <span id="meta-modelos"></span>
+          <span id="meta-time"></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    API de acceso a modelos de aprendizaje supervisado (XGBoost) ·
+    <a href="/docs" target="_blank">Documentación interactiva (Swagger)</a>
+  </footer>
+</div>
+
+<script>
+const IDS_NUM = ['dias_anticipacion','semana_llegada','dia_llegada','noches_fin_semana',
+  'noches_semana','adultos','ninos','cancelaciones_previas','cambios_reserva',
+  'dias_lista_espera','solicitudes_especiales'];
+const IDS_CAT = ['tipo_hotel','mes_llegada','regimen_alimenticio','segmento_mercado',
+  'canal_distribucion','tipo_deposito','tipo_cliente','tipo_hab_reservada','tipo_hab_asignada'];
+
+function leerPayload(){
+  const p = {};
+  IDS_NUM.forEach(id => p[id] = parseInt(document.getElementById(id).value, 10));
+  IDS_CAT.forEach(id => p[id] = document.getElementById(id).value);
+  return p;
+}
+
+async function verificarSalud(){
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  try{
+    const r = await fetch('/health');
+    if(r.ok){ dot.className='ok'; txt.textContent='servicio activo'; }
+    else throw new Error();
+  }catch(e){
+    dot.className='bad'; txt.textContent='servicio sin respuesta';
+  }
+}
+verificarSalud();
+
+document.getElementById('form-reserva').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const btn = document.getElementById('btn-submit');
+  const errBox = document.getElementById('error-box');
+  errBox.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Evaluando…';
+
+  const payload = leerPayload();
+
+  try{
+    const t0 = performance.now();
+    const [rTarifa, rCancel] = await Promise.all([
+      fetch('/predict/tarifa', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)}),
+      fetch('/predict/cancelacion', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)}),
+    ]);
+
+    if(!rTarifa.ok || !rCancel.ok){
+      const detalle = !rTarifa.ok ? await rTarifa.json() : await rCancel.json();
+      throw new Error(JSON.stringify(detalle.detail || detalle, null, 0).slice(0, 300));
+    }
+
+    const tarifa = await rTarifa.json();
+    const cancel = await rCancel.json();
+    const ms = Math.round(performance.now() - t0);
+
+    document.getElementById('empty-state').style.display = 'none';
+    const card = document.getElementById('result-card');
+    card.classList.add('show');
+
+    document.getElementById('val-tarifa').textContent = tarifa.tarifa_diaria_predicha.toFixed(2);
+    document.getElementById('foot-tarifa').textContent =
+      `modelo ${tarifa.modelo} · R² ${tarifa.metrica_validacion.R2 ?? '—'}`;
+
+    const proba = cancel.probabilidad_cancelacion;
+    const pct = Math.round(proba * 100);
+    const esAlto = cancel.cancelado_predicho === 1;
+
+    const bar = document.getElementById('bar-proba');
+    bar.style.width = pct + '%';
+    bar.style.background = esAlto ? 'var(--red)' : 'var(--green)';
+
+    const riskBox = document.getElementById('risk-box');
+    riskBox.className = 'risk ' + (esAlto ? 'high' : 'low');
+    document.getElementById('risk-label').textContent =
+      (esAlto ? 'Riesgo alto de cancelación' : 'Riesgo bajo de cancelación') + ` — ${pct}%`;
+    document.getElementById('risk-sub').textContent =
+      `modelo ${cancel.modelo} · F1 ${cancel.metrica_validacion.F1 ?? '—'}`;
+
+    document.getElementById('meta-modelos').textContent = 'XGBoost · regresión + clasificación';
+    document.getElementById('meta-time').textContent = `respuesta en ${ms} ms`;
+
+  }catch(e){
+    errBox.textContent = 'No se pudo evaluar la reserva: ' + e.message;
+    errBox.style.display = 'block';
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Evaluar reserva';
+  }
+});
+</script>
+</body>
+</html>
