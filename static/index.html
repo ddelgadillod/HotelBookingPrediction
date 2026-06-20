@@ -166,7 +166,6 @@
 
   <header>
     <div class="brand">
-      <span class="mark">HBP-01</span>
       <div>
         <h1>Panel de evaluación de reservas</h1>
         <div class="sub">tarifa estimada · riesgo de cancelación</div>
@@ -264,7 +263,6 @@
 
         <div class="submit-row">
           <button type="submit" id="btn-submit">Evaluar reserva</button>
-          <span class="hint">POST /predict/tarifa + /predict/cancelacion</span>
         </div>
         <div class="err" id="error-box"></div>
       </form>
@@ -316,8 +314,8 @@
   </div>
 
   <footer>
-    API de acceso a modelos de aprendizaje supervisado (XGBoost) ·
-    <a href="/docs" target="_blank">Documentación interactiva (Swagger)</a>
+    API de acceso a modelos de aprendizaje supervisado ·
+    <a href="/docs" target="_blank">Documentación Swagger</a>
   </footer>
 </div>
 
@@ -397,7 +395,6 @@ document.getElementById('form-reserva').addEventListener('submit', async (ev) =>
     document.getElementById('risk-sub').textContent =
       `modelo ${cancel.modelo} · F1 ${cancel.metrica_validacion.F1 ?? '—'}`;
 
-    document.getElementById('meta-modelos').textContent = 'XGBoost · regresión + clasificación';
     document.getElementById('meta-time').textContent = `respuesta en ${ms} ms`;
 
   }catch(e){
