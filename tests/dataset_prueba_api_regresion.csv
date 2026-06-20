@@ -1,0 +1,21 @@
+dias_anticipacion,semana_llegada,dia_llegada,noches_fin_semana,noches_semana,adultos,ninos,cancelaciones_previas,cambios_reserva,dias_lista_espera,solicitudes_especiales,tipo_hotel,mes_llegada,regimen_alimenticio,segmento_mercado,canal_distribucion,tipo_deposito,tipo_cliente,tipo_hab_reservada,tipo_hab_asignada,tarifa_diaria_real,tarifa_diaria_pred_pipeline
+349,41,4,1,5,1,0.0,0,0,162,0,City Hotel,October,BB,Offline TA/TO,TA/TO,No Deposit,Transient-Party,A,B,96.67,77.78
+247,24,6,1,1,1,0.0,0,1,0,0,City Hotel,June,HB,Offline TA/TO,TA/TO,No Deposit,Transient-Party,A,A,93.0,80.16
+6,43,19,1,2,1,0.0,0,0,0,1,City Hotel,October,BB,Online TA,TA/TO,No Deposit,Transient,D,D,136.0,107.38
+22,8,23,0,2,2,0.0,0,0,0,0,Resort Hotel,February,Undefined,Groups,TA/TO,No Deposit,Transient-Party,A,C,46.0,69.56
+55,11,16,2,3,1,0.0,0,1,0,1,City Hotel,March,SC,Online TA,TA/TO,No Deposit,Transient,A,A,74.8,67.18
+73,7,17,1,2,1,0.0,0,0,0,0,Resort Hotel,February,BB,Corporate,Corporate,No Deposit,Transient-Party,A,A,36.0,56.46
+16,19,10,0,1,1,0.0,1,0,0,2,City Hotel,May,BB,Corporate,Corporate,No Deposit,Transient,A,D,104.0,73.55
+201,45,1,0,4,2,1.0,0,1,0,3,City Hotel,November,BB,Online TA,TA/TO,No Deposit,Transient,A,A,82.28,100.27
+144,22,1,0,3,3,0.0,0,0,0,2,City Hotel,June,BB,Direct,Direct,No Deposit,Transient,D,D,168.55,163.31
+68,36,5,2,4,2,0.0,0,0,0,2,Resort Hotel,September,BB,Online TA,TA/TO,No Deposit,Transient,E,E,123.0,140.85
+21,7,14,0,1,2,0.0,0,1,0,2,City Hotel,February,HB,Direct,Direct,No Deposit,Transient,D,D,153.0,105.51
+309,18,2,0,4,2,0.0,0,0,0,3,City Hotel,May,BB,Online TA,TA/TO,No Deposit,Transient,A,A,109.8,98.34
+30,4,27,2,3,2,0.0,0,4,14,1,Resort Hotel,January,SC,Groups,Corporate,No Deposit,Transient-Party,A,I,0.0,46.23
+165,29,10,1,0,2,0.0,0,0,0,1,City Hotel,July,SC,Online TA,TA/TO,No Deposit,Transient,A,A,103.5,77.45
+119,39,23,0,2,2,0.0,0,0,0,1,Resort Hotel,September,BB,Online TA,TA/TO,No Deposit,Transient,A,E,56.98,112.05
+236,20,12,0,3,3,0.0,0,1,0,0,Resort Hotel,May,BB,Groups,TA/TO,No Deposit,Transient-Party,A,C,66.0,85.17
+10,27,27,1,0,1,0.0,0,0,0,0,Resort Hotel,June,BB,Online TA,TA/TO,No Deposit,Transient,A,B,141.0,108.36
+105,45,30,2,2,1,0.0,0,0,0,0,City Hotel,October,BB,Online TA,TA/TO,No Deposit,Transient,A,A,85.05,73.84
+59,35,28,2,5,2,0.0,0,0,0,2,Resort Hotel,August,BB,Online TA,TA/TO,No Deposit,Transient,D,D,201.43,167.53
+70,38,15,2,5,2,0.0,0,0,0,0,City Hotel,September,BB,Direct,Direct,No Deposit,Transient,D,D,137.7,114.75
